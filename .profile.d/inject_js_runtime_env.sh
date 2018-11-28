@@ -3,17 +3,17 @@
 # Debug, echo every command
 #set -x
 
-JS_RUNTIME_ENV_PREFIX="${JS_RUNTIME_ENV_PREFIX:-JS_RUNTIME_}"
+GATSBY_ENV_PREFIX="${GATSBY_ENV_PREFIX:-GATSBY_}"
 
 # Each bundle is generated with a unique hash name to bust browser cache.
 # Use shell `*` globbing to fuzzy match.
-JS_RUNTIME_TARGET_BUNDLE="${JS_RUNTIME_TARGET_BUNDLE:-/app/build/index.*.js}"
+GATSBY_TARGET_BUNDLE="${GATSBY_TARGET_BUNDLE:-/app/build/index.*.js}"
 
-if [ -f $JS_RUNTIME_TARGET_BUNDLE ]
+if [ -f $GATSBY_TARGET_BUNDLE ]
 then
 
   # Get exact filename.
-  js_bundle_filename=`ls $JS_RUNTIME_TARGET_BUNDLE`
+  js_bundle_filename=`ls $GATSBY_TARGET_BUNDLE`
   
   echo "Injecting runtime env into $js_bundle_filename (from .profile.d/inject_js_runtime_env.sh)"
 

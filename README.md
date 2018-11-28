@@ -1,5 +1,5 @@
-Heroku JS Runtime Env Buildpack
-===============================
+# Heroku JS Runtime Env Buildpack
+
 Use runtime environment variables in bundled/minified javascript apps.
 
 [![Build Status](https://travis-ci.org/mars/heroku-js-runtime-env-buildpack.svg?branch=master)](https://travis-ci.org/mars/heroku-js-runtime-env-buildpack)
@@ -7,19 +7,17 @@ Use runtime environment variables in bundled/minified javascript apps.
 
 🔬🚧 **This is a reasearch project.** Results so far indicate that it's not generalizing to different JS frameworks as gracefully as one might hope.
 
-Usage
------
+## Usage
 
-A Heroku app uses this buildpack + an [npm module](https://github.com/mars/heroku-js-runtime-env). 
+A Heroku app uses this buildpack + an [npm module](https://github.com/mars/heroku-js-runtime-env).
 
-`JS_RUNTIME_TARGET_BUNDLE` must be set to the path glob pattern for the javascript bundle containing the [heroku-js-runtime-env](https://github.com/mars/heroku-js-runtime-env). For example:
+`GATSBY_TARGET_BUNDLE` must be set to the path glob pattern for the javascript bundle containing the [heroku-js-runtime-env](https://github.com/mars/heroku-js-runtime-env). For example:
 
-* create-react-app: `JS_RUNTIME_TARGET_BUNDLE=/app/build/index.*.js`
-* ember-cli ([example](#user-content-with-ember)): `JS_RUNTIME_TARGET_BUNDLE=/app/dist/assets/vendor-*.js`
-* vue-cli with webpack ([example](#user-content-with-vue)): `JS_RUNTIME_TARGET_BUNDLE=/app/dist/static/js/vendor.*.js`
+- create-react-app: `GATSBY_TARGET_BUNDLE=/app/build/index.*.js`
+- ember-cli ([example](#user-content-with-ember)): `GATSBY_TARGET_BUNDLE=/app/dist/assets/vendor-*.js`
+- vue-cli with webpack ([example](#user-content-with-vue)): `GATSBY_TARGET_BUNDLE=/app/dist/static/js/vendor.*.js`
 
-`JS_RUNTIME_`-prefixed environment variables will be made available in the running Heroku app via npm module [heroku-js-runtime-env](https://github.com/mars/heroku-js-runtime-env).
-
+`GATSBY_`-prefixed environment variables will be made available in the running Heroku app via npm module [heroku-js-runtime-env](https://github.com/mars/heroku-js-runtime-env).
 
 ### with Vue
 
@@ -27,7 +25,7 @@ A Heroku app uses this buildpack + an [npm module](https://github.com/mars/herok
 
 ⚠️ Vue's `npm run dev` mode does not pass arbitrary env vars instead requiring settings in `config/dev.env.js`. So, dev mode seems to be broken. (Help?)
 
-✏️ *Replace `$APP_NAME` with your app's unique name.*
+✏️ _Replace `$APP_NAME` with your app's unique name._
 
 ```bash
 npm install -g vue-cli
@@ -38,7 +36,7 @@ git add .
 git commit -m '🌱 create Vue app'
 heroku create $APP_NAME
 heroku buildpacks:add https://github.com/mars/heroku-js-runtime-env-buildpack
-heroku config:set JS_RUNTIME_TARGET_BUNDLE=/app/dist/static/js/vendor.*.js
+heroku config:set GATSBY_TARGET_BUNDLE=/app/dist/static/js/vendor.*.js
 heroku buildpacks:add heroku/nodejs
 heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static
 
@@ -76,7 +74,7 @@ export default {
   data () {
     const env = runtimeEnv()
     return {
-      msg: env.JS_RUNTIME_MESSAGE || 'JS_RUNTIME_MESSAGE is empty. Here’s a donut instead: 🍩'
+      msg: env.GATSBY_MESSAGE || 'GATSBY_MESSAGE is empty. Here’s a donut instead: 🍩'
     }
   }
 }
@@ -94,10 +92,10 @@ git push heroku master
 heroku open
 ```
 
-Once deployed, you can set the `JS_RUNTIME_MESSAGE` var to see the new value take effect immediately after the app restarts:
+Once deployed, you can set the `GATSBY_MESSAGE` var to see the new value take effect immediately after the app restarts:
 
 ```bash
-heroku config:set JS_RUNTIME_MESSAGE=🌈
+heroku config:set GATSBY_MESSAGE=🌈
 heroku open
 ```
 
@@ -109,7 +107,7 @@ heroku open
 
 [Example Ember app](https://github.com/mars/example-ember-with-heroku-js-runtime-env), created in this experiment.
 
-✏️ *Replace `$APP_NAME` with your app's unique name.*
+✏️ _Replace `$APP_NAME` with your app's unique name._
 
 ```bash
 npm install -g ember-cli
@@ -117,7 +115,7 @@ ember new $APP_NAME
 cd $APP_NAME
 heroku create $APP_NAME
 heroku buildpacks:add https://github.com/mars/heroku-js-runtime-env-buildpack
-heroku config:set JS_RUNTIME_TARGET_BUNDLE=/app/dist/assets/vendor-*.js
+heroku config:set GATSBY_TARGET_BUNDLE=/app/dist/assets/vendor-*.js
 heroku buildpacks:add heroku/nodejs
 heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static
 
@@ -151,7 +149,6 @@ npm install --save-dev ember-browserify
 npm install --save @mars/heroku-js-runtime-env
 ember generate component runtime-env
 ```
-
 
 Edit the component `app/components/runtime-env.js` to contain:
 
@@ -200,7 +197,7 @@ heroku open
 Once deployed, you would ideally set the `RUNTIME_JS_MESSAGE` var to see the new value take effect immediately after the app restarts:
 
 ```bash
-heroku config:set JS_RUNTIME_MESSAGE=🌈
+heroku config:set GATSBY_MESSAGE=🌈
 heroku open
 ```
 
@@ -208,24 +205,22 @@ heroku open
 
 > Failed to find a valid digest in the 'integrity' attribute for resource 'https://example-ember-runtime-env.herokuapp.com/assets/vendor-05f75ec213143035d715ab3c640a3ff4.js' with computed SHA-256 integrity 'oSQ3RCkKyfwVgWjG0HDlTzDFreoQnTQCUCqJoiOJEMs='. The resource has been blocked.
 
+## Background
 
-Background
------------
 Normally javascript apps are compiled into a bundle before being deployed. During this build phase, environment variables may be embedded in the javascript bundle, such as with [Webpack DefinePlugin](https://webpack.github.io/docs/list-of-plugins.html#defineplugin).
 
 When hosting on a [12-factor](https://12factor.net) platform like [Heroku](https://www.heroku.com), these embedded values may go stale when setting new [config vars](https://devcenter.heroku.com/articles/config-vars) or promoting through a [pipeline](https://devcenter.heroku.com/articles/pipelines).
 
 Originally developed as part of [create-react-app-buildpack](https://github.com/mars/create-react-app-buildpack), this buildpack aims to solve this problem in a generalized way.
 
-How Does It Work?
------------------
+## How Does It Work?
+
 When developing a JavaScript app, use the [npm module](https://www.npmjs.com/package/@mars/heroku-js-runtime-env) to access runtime environment variables in client-side code.
 
 Then, each time the app starts-up on Heroku, a [`.profile.d` script](.profile.d/inject_js_runtime_env.sh) (installed from the buildpack) is executed which fills in a [JSON placeholder](https://github.com/mars/heroku-js-runtime-env/blob/master/index.js#L15) (with a `REACT_APP_` legacy name) in the JavaScript bundle with the runtime environment variables. The result is 🍃fresh runtime environment variables in the production javascript bundle without recompiling.
 
+## Development
 
-Development
------------
 The program which performs the bundle injection is written in Ruby 2.3.1, the version included in the Heroku-16 stack.
 
 ```bash
